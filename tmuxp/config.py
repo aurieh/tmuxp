@@ -8,7 +8,9 @@ tmuxp.config
 from __future__ import absolute_import, unicode_literals
 
 import copy
+import curses
 import logging
+import math
 import os
 
 from . import exc
@@ -231,8 +233,17 @@ def expand(sconf, cwd=None, parent=None):
                     val = os.path.normpath(os.path.join(cwd, val))
             sconf['global_options'][key] = val
     if 'options' in sconf:
+
         for key in sconf['options']:
             val = sconf['options'][key]
+            if val.endswith('%'):
+                if not hasattr(curses, 'COLS') or not hasattr(curses, 'LINES'):
+                    raise Exception('no LINES or COLS, pls')
+                val = int(val[:-1])
+                if key.endswith('height'):
+                    val = math.ceil((curses.LINES / 100) * val)
+                elif key.endswith('width'):
+                    val = math.ceil((curses.COLS / 100) * val)
             if isinstance(val, string_types):
                 val = expandshell(val)
                 if any(val.startswith(a) for a in ['.', './']):

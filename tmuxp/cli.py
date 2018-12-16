@@ -7,6 +7,7 @@ tmuxp.cli
 """
 from __future__ import absolute_import
 
+import curses
 import logging
 import os
 import sys
@@ -486,6 +487,12 @@ def load_workspace(
        https://github.com/tmux/tmux/blob/2.6/cmd-switch-client.c#L132.
        Accessed April 8th, 2018.
     """
+    # here we ensure COLS and LINES is set for percentage config
+    try:
+        curses.initscr()
+    finally:
+        curses.endwin()
+
     # get the canonical path, eliminating any symlinks
     config_file = os.path.realpath(config_file)
 
