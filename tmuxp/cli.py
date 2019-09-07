@@ -51,7 +51,7 @@ def get_config_dir():
     if 'TMUXP_CONFIGDIR' in os.environ:
         paths.append(os.environ['TMUXP_CONFIGDIR'])
     if 'XDG_CONFIG_HOME' in os.environ:
-        paths.append(os.environ['XDG_CONFIG_HOME'])
+        paths.append(os.path.join(os.environ['XDG_CONFIG_HOME'], 'tmuxp'))
     else:
         paths.append('~/.config/tmuxp/')
     paths.append('~/.tmuxp')
@@ -659,7 +659,7 @@ def startup(config_dir):
 
 
 @cli.command(name='freeze')
-@click.argument('session_name', nargs=1)
+@click.argument('session_name', nargs=1, required=False)
 @click.option('-S', 'socket_path', help='pass-through for tmux -S')
 @click.option('-L', 'socket_name', help='pass-through for tmux -L')
 def command_freeze(session_name, socket_name, socket_path):
@@ -671,7 +671,10 @@ def command_freeze(session_name, socket_name, socket_path):
     t = Server(socket_name=socket_name, socket_path=socket_path)
 
     try:
-        session = t.find_where({'session_name': session_name})
+        if session_name:
+            session = t.find_where({'session_name': session_name})
+        else:
+            session = t.list_sessions()[0]
 
         if not session:
             raise exc.TmuxpException('Session not found.')
@@ -714,10 +717,7 @@ def command_freeze(session_name, socket_name, socket_path):
                 )
             )
             dest_prompt = click.prompt(
-                'Save to: %s' % save_to,
-                value_proc=get_abs_path,
-                default=save_to,
-                confirmation_prompt=True,
+                'Save to: %s' % save_to, value_proc=get_abs_path, default=save_to
             )
             if os.path.exists(dest_prompt):
                 print('%s exists. Pick a new filename.' % dest_prompt)

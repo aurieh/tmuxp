@@ -107,7 +107,7 @@ Want to learn more about tmux itself? `Read The Tao of Tmux online`_.
 .. _before_script: http://tmuxp.git-pull.com/en/latest/examples.html#bootstrap-project-before-launch
 .. _virtualenv: https://virtualenv.git-pull.com/en/latest/
 .. _Read The Tao of tmux online: http://tmuxp.git-pull.com/en/latest/about_tmux.html
-.. _author's tmuxp configs: https://github.com/tmux-python/tmuxp-config
+.. _author's tmuxp configs: https://github.com/tony/tmuxp-config
 .. _python library: https://tmuxp.git-pull.com/en/latest/api.html
 .. _python API quickstart: https://tmuxp.git-pull.com/en/latest/quickstart_python.html
 .. _tmux(1): http://tmux.sourceforge.net/
@@ -141,7 +141,7 @@ Project details
 ---------------
 
 ==============  ==========================================================
-tmux support    1.8, 1.9a, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6
+tmux support    1.8, 1.9a, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7. 2.8
 python support  2.7, >= 3.3, pypy, pypy3
 config support  yaml, json, python dict
 Source          https://github.com/tmux-python/tmuxp

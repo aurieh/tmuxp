@@ -120,6 +120,13 @@ def test_tmuxp_configdir_env_var(tmpdir, monkeypatch):
     assert get_config_dir() == tmpdir
 
 
+def test_tmuxp_configdir_xdg_config_dir(tmpdir, monkeypatch):
+    monkeypatch.setenv('XDG_CONFIG_HOME', str(tmpdir))
+    tmux_dir = tmpdir.mkdir("tmuxp")
+
+    assert get_config_dir() == str(tmux_dir)
+
+
 def test_resolve_dot(tmpdir, homedir, configdir, projectdir, monkeypatch):
     monkeypatch.setenv('HOME', str(homedir))
     projectdir.join('.tmuxp.yaml').ensure()
@@ -460,6 +467,36 @@ def test_import_tmuxinator(cli_args, inputs, tmpdir, monkeypatch):
 
     with tmpdir.as_cwd():
         runner = CliRunner()
+        out = runner.invoke(cli.cli, cli_args, input=''.join(inputs))
+        print(out.output)
+        assert tmpdir.join('la.yaml').check()
+
+
+@pytest.mark.parametrize(
+    "cli_args,inputs",
+    [
+        (['freeze', 'mysession'], ['\n', 'y\n', './la.yaml\n', 'y\n']),
+        (  # Exists
+            ['freeze', 'mysession'],
+            ['\n', 'y\n', './exists.yaml\n', './la.yaml\n', 'y\n'],
+        ),
+        (  # Imply current session if not entered
+            ['freeze'],
+            ['\n', 'y\n', './la.yaml\n', 'y\n'],
+        ),
+        (['freeze'], ['\n', 'y\n', './exists.yaml\n', './la.yaml\n', 'y\n']),  # Exists
+    ],
+)
+def test_freeze(server, cli_args, inputs, tmpdir, monkeypatch):
+    monkeypatch.setenv('HOME', str(tmpdir))
+    tmpdir.join('exists.yaml').ensure()
+
+    server.new_session(session_name='mysession')
+
+    with tmpdir.as_cwd():
+        runner = CliRunner()
+        # Use tmux server (socket name) used in the test
+        cli_args = cli_args + ['-L', server.socket_name]
         out = runner.invoke(cli.cli, cli_args, input=''.join(inputs))
         print(out.output)
         assert tmpdir.join('la.yaml').check()
